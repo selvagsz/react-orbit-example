@@ -1,0 +1,39 @@
+{
+  "name": "react-orbit-example",
+  "version": "1.0.0",
+  "description": "Demo react app that uses orbitjs for state management",
+  "keywords": [
+    "react",
+    "state-management",
+    "orbitjs"
+  ],
+  "main": "src/index.js",
+  "dependencies": {
+    "@orbit/coordinator": "0.16.3",
+    "@orbit/core": "0.16.3",
+    "@orbit/data": "0.16.3",
+    "@orbit/jsonapi": "0.16.3",
+    "@orbit/memory": "0.16.3",
+    "@reach/router": "1.2.1",
+    "miragejs": "0.1.31",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "react-scripts": "3.0.1",
+    "tailwindcss": "1.1.3"
+  },
+  "devDependencies": {
+    "typescript": "3.3.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
