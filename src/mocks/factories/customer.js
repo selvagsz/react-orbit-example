@@ -15,7 +15,7 @@ export default Factory.extend({
   },
   afterCreate(customer, server) {
     customer.update({
-      assignee: server.create('user'),
+      user: server.create('user'),
     });
   },
 });

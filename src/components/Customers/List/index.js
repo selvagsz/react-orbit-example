@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '@reach/router';
 import useQuery from '../../../hooks/useQuery';
 import CustomerListItem from './ListItem';
 
 export default function Customers() {
   let [showQuickAdd, setShowQuickAdd] = useState(false);
-  let [state, doFetch] = useQuery({ type: 'customer', query: t => t.findRecords('customer') });
+  let customersQuery = useCallback((t) => t.findRecords('customer'), []);
+  let [state, fetchCustomers] = useQuery({ type: 'customer', query: customersQuery });
   const { isFetchingFromRemote, results: customers } = state;
   const isLoading = isFetchingFromRemote && !customers.length;
 
   useEffect(() => {
-    doFetch(t => t.findRecords('customer'));
-  }, [doFetch]);
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   return (
     <>
@@ -21,6 +22,7 @@ export default function Customers() {
             <th className="border px-2 py-1 text-left">Name</th>
             <th className="border px-2 py-1 text-left">Email</th>
             <th className="border px-2 py-1 text-left">Website</th>
+            <th className="border px-2 py-1 text-left">Assignee</th>
             <th />
           </tr>
         </thead>
@@ -35,27 +37,10 @@ export default function Customers() {
             <>
               {customers.map(customer => {
                 return (
-                  <tr className="hover:bg-gray-100" key={customer.id}>
-                    <td className="border px-2 py-2">
-                      {customer.attributes.firstName} {customer.attributes.lastName}
-                    </td>
-                    <td className="border px-2 py-2">{customer.attributes.email}</td>
-                    <td className="border px-2 py-2">{customer.attributes.website}</td>
-                    <td className="border px-2 py-2">
-                      <button
-                        className="text-xs px-2 bg-transparent hover:bg-purple-700 text-purple-700 font-semibold hover:text-white border border-purple-700 hover:border-transparent rounded"
-                        onClick={() => setShowQuickAdd(true)}
-                      >
-                        edit
-                      </button>
-                      <button
-                        className="text-xs px-2 bg-transparent hover:bg-purple-700 text-purple-700 ml-2 font-semibold hover:text-white border border-purple-700 hover:border-transparent rounded"
-                        onClick={() => setShowQuickAdd(true)}
-                      >
-                        delete
-                      </button>
-                    </td>
-                  </tr>
+                  <CustomerListItem
+                    key={customer.id}
+                    customer={customer}
+                  />
                 );
               })}
               {showQuickAdd && <CustomerListItem onClose={() => setShowQuickAdd(false)} />}

@@ -17,7 +17,7 @@ const server = new Server({
   models: {
     user: Model,
     customer: Model.extend({
-      assignee: belongsTo('user'),
+      user: belongsTo('user'),
     }),
   },
 
@@ -27,7 +27,7 @@ const server = new Server({
 
   seeds(server) {
     server.createList('user', 1);
-    server.createList('customer', 1);
+    server.createList('customer', 3);
   },
 
   factories: {

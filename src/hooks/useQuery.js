@@ -34,30 +34,40 @@ function reducer(state, action) {
   }
 }
 
-export default function useQuery({ type, query }, deps = []) {
+export default function useQuery({ type, query, initialState = [] }) {
   const store = useStore();
-  const [state, dispatch] = useReducer(reducer, initialValue);
-  const memoizedQueryBuilder = useCallback(query, deps);
+  const [state, dispatch] = useReducer(reducer, { ...initialValue, results: initialState });
 
   useEffect(() => {
     function handleTransform(_t) {
-      let results = store.memory.cache.query(memoizedQueryBuilder);
+      let results = store.memory.cache.query(query);
       dispatch({
         type: 'FETCH_SUCCESS',
         payload: { results },
       });
     }
     store.memory.on(`change:${type}`, handleTransform);
-    return () => store.memory.off(handleTransform);
-  }, [type, memoizedQueryBuilder, store.memory]);
+    return () => {
+      store.memory.off(handleTransform);
+    }
+  }, [type, query, store.memory]);
 
   const doFetch = useCallback(async () => {
-    let results = await store.memory.query(memoizedQueryBuilder);
-    dispatch({
-      type: 'FETCH_LOADING',
-      payload: { results },
-    });
-  }, [memoizedQueryBuilder, store.memory]);
+    try {
+      let results = await store.memory.query(query);
+      dispatch({
+        type: 'FETCH_LOADING',
+        payload: { results },
+      });
+    } catch(e) {
+      dispatch({
+        type: 'FETCH_ERROR',
+        payload: {
+          error: e,
+        }
+      });
+    }
+  }, [query, store.memory]);
 
   return [state, doFetch];
 }

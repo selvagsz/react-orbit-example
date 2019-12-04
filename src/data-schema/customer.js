@@ -6,6 +6,6 @@ export default {
     website: { type: 'string' },
   },
   relationships: {
-    assignee: { type: 'hasOne', model: 'user' },
+    user: { type: 'hasOne', model: 'user' },
   },
 };

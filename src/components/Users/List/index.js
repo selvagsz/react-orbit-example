@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import useQuery from '../../../hooks/useQuery';
 
 export default function Users() {
-  let [state, fetchUsers] = useQuery({ type: 'user', query: t => t.findRecords('user') }, []);
+  let fetchUsersQuery = useCallback((t) => t.findRecords('user'), []);
+  let [state, fetchUsers] = useQuery({ type: 'user', query: fetchUsersQuery });
   const { isFetchingFromRemote, results: users } = state;
   const isLoading = isFetchingFromRemote && !users.length;
 

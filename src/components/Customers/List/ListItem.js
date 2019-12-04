@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useFormInput from '../../../hooks/useFormInput';
 import useStore from '../../../hooks/useStore';
+import useQuery from '../../../hooks/useQuery';
 
 export default function ListItem({
   isNew = false,
   customer = { type: 'customer', attributes: {} },
   onClose = () => {},
 }) {
+  let [inputs, setInputValues, handleInputChange] = useFormInput(customer);
   let [isEdit, setIsEdit] = useState(isNew);
   let { memory } = useStore();
-  let [inputs, setInputValues, handleInputChange] = useFormInput(customer);
+  let customerAssigneeQuery = useCallback((t) => t.findRecord(customer.relationships.user.data), [customer.relationships.user.data]);
+  let [state, fetchCustomerAssignee] = useQuery({
+    type: `user:${customer.relationships.user.data.id}`,
+    query: customerAssigneeQuery,
+    initialState: {},
+  });
+  const { results: assignee } = state;
+
+  useEffect(() => {
+    fetchCustomerAssignee()
+  }, [fetchCustomerAssignee])
+
 
   return (
     <tr>
@@ -68,6 +81,10 @@ export default function ListItem({
         ) : (
           <span>{customer.attributes.website}</span>
         )}
+      </td>
+      <td className="border px-2 py-1">
+        {!assignee.attributes ? 'loading...' :
+        <span>{assignee.attributes.firstName}</span>}
       </td>
       <td className="border px-2 py-1">
         {isEdit ? (
