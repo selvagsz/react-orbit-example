@@ -8,16 +8,28 @@ export default function Store({ memorySource, remoteSource, children }) {
   });
 
   useEffect(() => {
+    function skipTaskOnRequestQueue(e) {
+      console.log('Request task error on memory source, Skipping', e);
+      return memorySource.requestQueue.skip();
+    }
+
     function handleTransform(t) {
       let recordTypes = t.operations.map(o => o.record.type);
-      let uniqueRecordTypes = [...new Set(recordTypes)];
-      uniqueRecordTypes.forEach(recordType => {
-        console.log(`emitting change event for ${recordType}`);
-        memorySource.emit(`change:${recordType}`, t);
+      let recordTypesWithIds = t.operations.map(o => `${o.record.type}:${o.record.id}`);
+      let uniqueRecordEvents = [...new Set(recordTypes.concat(recordTypesWithIds))];
+      uniqueRecordEvents.forEach(recordEvent => {
+        console.log(`emitting change event for ${recordEvent}`);
+        memorySource.emit(`change:${recordEvent}`, t);
       });
     }
+
+    memorySource.requestQueue.on('fail', skipTaskOnRequestQueue);
     memorySource.on('transform', handleTransform);
-    return () => memorySource.off('transform', handleTransform);
+
+    return () => {
+      memorySource.requestQueue.off('fail', skipTaskOnRequestQueue);
+      memorySource.off('transform', handleTransform);
+    }
   }, [memorySource]);
 
   return <OrbitContext.Provider value={value}>{children}</OrbitContext.Provider>;
