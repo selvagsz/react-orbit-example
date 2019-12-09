@@ -19,7 +19,7 @@ export default function Store({ memorySource, remoteSource, children }) {
       let uniqueRecordEvents = [...new Set(recordTypes.concat(recordTypesWithIds))];
       uniqueRecordEvents.forEach(recordEvent => {
         console.log(`emitting change event for ${recordEvent}`);
-        memorySource.emit(`change:${recordEvent}`, t);
+        memorySource.emit(recordEvent, t);
       });
     }
 

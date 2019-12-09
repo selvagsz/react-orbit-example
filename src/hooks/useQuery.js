@@ -1,63 +1,34 @@
-import { useReducer, useCallback, useEffect } from 'react';
+import { useReducer, useCallback, useEffect, useRef } from 'react';
+import queryReducer from './utils/query-reducer';
 import useStore from './useStore';
 
-const initialValue = {
-  isFetchingFromRemote: false,
-  results: [],
-  error: null,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'FETCH_LOADING':
-      return {
-        ...state,
-        isFetchingFromRemote: true,
-        error: null,
-        results: action.payload.results,
-      };
-    case 'FETCH_SUCCESS':
-      return {
-        ...state,
-        isFetchingFromRemote: false,
-        error: null,
-        results: action.payload.results,
-      };
-    case 'FETCH_ERROR':
-      return {
-        ...state,
-        isFetchingFromRemote: false,
-        error: action.payload.error,
-      };
-    default:
-      throw new Error('Unhandled ACTION');
-  }
-}
-
-export default function useQuery({ type, query, initialState = [] }) {
+export default function useQuery({ subscribeTo = 'transform' }) {
   const store = useStore();
-  const [state, dispatch] = useReducer(reducer, { ...initialValue, results: initialState });
+  const [state = {}, dispatch] = useReducer(queryReducer);
+  const queryBuilderRef = useRef(null);
+
+  const handleTransform = useCallback(() => {
+    let data = store.memory.cache.query(queryBuilderRef.current);
+    dispatch({
+      type: 'FETCH_SUCCESS',
+      payload: { data },
+    });
+  }, [store.memory.cache])
 
   useEffect(() => {
-    function handleTransform(_t) {
-      let results = store.memory.cache.query(query);
-      dispatch({
-        type: 'FETCH_SUCCESS',
-        payload: { results },
-      });
-    }
-    store.memory.on(`change:${type}`, handleTransform);
+    store.memory.on(subscribeTo, handleTransform);
     return () => {
-      store.memory.off(handleTransform);
+      store.memory.off(subscribeTo, handleTransform);
     }
-  }, [type, query, store.memory]);
+  }, [handleTransform, subscribeTo, store.memory]);
 
-  const doFetch = useCallback(async () => {
+  const queryStore = useCallback(async (queryBuilder) => {
     try {
-      let results = await store.memory.query(query);
+      let data = await store.memory.query(queryBuilder);
+      queryBuilderRef.current = queryBuilder;
       dispatch({
         type: 'FETCH_LOADING',
-        payload: { results },
+        payload: { data },
       });
     } catch(e) {
       dispatch({
@@ -66,8 +37,9 @@ export default function useQuery({ type, query, initialState = [] }) {
           error: e,
         }
       });
+      throw e;
     }
-  }, [query, store.memory]);
+  }, [store.memory]);
 
-  return [state, doFetch];
+  return { ...state, queryStore };
 }

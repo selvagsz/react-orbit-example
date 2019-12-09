@@ -7,21 +7,30 @@ import Users from './components/Users/List';
 
 export default function App() {
   return (
-    <div className="App container mx-auto px-4 font-sans font-normal">
-      <header>
-        <nav>
-          <div className="py-4 flex-shrink-0 flex items-center">
-            <NavLink to="/customers">
-              <button className="py-2 px-4 font-medium text-gray-900 text-center">Customers</button>
-            </NavLink>
-            <NavLink to="/users">
-              <button className="py-2 px-4 font-medium text-gray-900 text-cente">Users</button>
-            </NavLink>
-          </div>
+    <div className="App">
+      <header className="Header">
+        <div className="Header__Brand">
+          React Orbit
+        </div>
+        <nav className="Header__Nav">
+          <NavLink
+            to="/customers"
+            className="Header__NavLink"
+            activeClassName="Header__NavLink--active"
+          >
+            Customers
+          </NavLink>
+          <NavLink
+            to="/users"
+            className="Header__NavLink"
+            activeClassName="Header__NavLink--active"
+          >
+            Users
+          </NavLink>
         </nav>
       </header>
 
-      <main>
+      <main className="MainContent">
         <Router>
           <Customers path="/customers" />
           <CustomersNew path="/customers/new" />

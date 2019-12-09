@@ -1,35 +1,40 @@
-import React, { useEffect, useCallback } from 'react';
-import useQuery from '../../../hooks/useQuery';
+import React, { useEffect } from 'react';
+import useStoreQuery from '../../../hooks/useQuery';
+import Button from '../../ui/Button';
+import Spinner from '../../ui/Spinner';
 
 export default function Users() {
-  let fetchUsersQuery = useCallback((t) => t.findRecords('user'), []);
-  let [state, fetchUsers] = useQuery({ type: 'user', query: fetchUsersQuery });
-  const { isFetchingFromRemote, results: users } = state;
-  const isLoading = isFetchingFromRemote && !users.length;
+  let { data: users = [], isFetchingFromRemote, queryStore } = useStoreQuery({
+    subscribeTo: 'user',
+  });
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    queryStore(t => t.findRecords('user'));
+  }, [queryStore]);
 
   return (
-    <>
-      <table className="table-auto w-full">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border px-2 py-1 text-left">Name</th>
-            <th className="border px-2 py-1 text-left">Email</th>
-            <th className="border px-2 py-1 text-left">Website</th>
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            <tr>
-              <td className="text-center" colSpan="3">
-                loading...
-              </td>
+    <div className="Page">
+      <div className="Page__Header">
+        <div className="Page__HeaderTitle">
+          <h1 className="Page__HeaderTitleText">Users</h1>
+          {isFetchingFromRemote && <Spinner />}
+        </div>
+        <div className="Page__HeaderActions">
+          <Button>New User</Button>
+        </div>
+      </div>
+
+      <div className="Page__Content">
+        <table className="table-auto w-full mt-2">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-2 py-1 text-left">Name</th>
+              <th className="border px-2 py-1 text-left">Email</th>
+              <th className="border px-2 py-1 text-left">Website</th>
             </tr>
-          ) : (
-            users.map(user => {
+          </thead>
+          <tbody>
+            {users.map(user => {
               return (
                 <tr key={user.id}>
                   <td className="border px-2 py-1">{user.attributes.firstName}</td>
@@ -37,10 +42,10 @@ export default function Users() {
                   <td className="border px-2 py-1">{user.attributes.website}</td>
                 </tr>
               );
-            })
-          )}
-        </tbody>
-      </table>
-    </>
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

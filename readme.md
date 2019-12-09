@@ -7,44 +7,38 @@
 import { useQuery } from 'react-orbit';
 
 export default function Customer() {
-  let memoizedQueryBuilder = useCallback((t) => t.findRecords('customer'))
-  let [state, fetchCustomers] = useQuery({
-    type: 'customer',
-    query: memoizedQueryBuilder
+  let { data: customers, isFetchingFromRemote, queryStore } = useQuery({
+    subscribeTo: 'customer',
   });
 
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers])
+    queryStore(t => t.findRecords('customer'));
+  }, [queryStore]);
+
+  return (
+    <>
+      {customers.map((customer) => <CustomerListItem customer={customer}>)}
+    </>
+  );
 }
+```
 
-
-import { useCacheQuery } from 'react-orbit';
-
-export default function Customer() {
-  let memoizedQueryBuilder = useCallback((t) => t.findRecords('customer'))
-  let [state, fetchCustomers] = useCacheQuery({
-    type: 'customer',
-    query: memoizedQueryBuilder
-  });
-
-  useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers])
-}
-
+```js
 import { useRemoteQuery } from 'react-orbit';
 
 export default function Customer() {
-  let memoizedQueryBuilder = useCallback((t) => t.findRecords('customer'))
-  let [state, fetchCustomers] = useRemoteQuery({
-    type: 'customer',
-    query: memoizedQueryBuilder
+  let { data: customers, isFetchingFromRemote, queryStore } = useQuery({
+    subscribeTo: 'customer',
   });
 
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers])
-}
+    queryStore(t => t.findRecords('customer'));
+  }, [queryStore]);
 
+  return (
+    <>
+      {customers.map((customer) => <CustomerListItem customer={customer}>)}
+    </>
+  );
+}
 ```

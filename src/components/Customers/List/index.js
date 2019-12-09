@@ -1,72 +1,62 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from '@reach/router';
-import useQuery from '../../../hooks/useQuery';
+import useStoreQuery from '../../../hooks/useQuery';
 import CustomerListItem from './ListItem';
+import Button from '../../ui/Button'
+import Spinner from '../../ui/Spinner'
+
+let counter = 0;
 
 export default function Customers() {
-  let [showQuickAdd, setShowQuickAdd] = useState(false);
-  let customersQuery = useCallback((t) => t.findRecords('customer'), []);
-  let [state, fetchCustomers] = useQuery({ type: 'customer', query: customersQuery });
-  const { isFetchingFromRemote, results: customers } = state;
-  const isLoading = isFetchingFromRemote && !customers.length;
+  let { data: customers = [], isFetchingFromRemote, queryStore } = useStoreQuery({
+    subscribeTo: 'customer',
+  });
 
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+    queryStore(t => t.findRecords('customer'));
+  }, [queryStore]);
 
+  console.log(++counter)
   return (
-    <>
-      <table className="table-auto w-full">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border px-2 py-1 text-left">Name</th>
-            <th className="border px-2 py-1 text-left">Email</th>
-            <th className="border px-2 py-1 text-left">Website</th>
-            <th className="border px-2 py-1 text-left">Assignee</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            <tr>
-              <td className="text-center" colSpan="3">
-                loading...
-              </td>
-            </tr>
-          ) : (
-            <>
-              {customers.map(customer => {
-                return (
-                  <CustomerListItem
-                    key={customer.id}
-                    customer={customer}
-                  />
-                );
-              })}
-              {showQuickAdd && <CustomerListItem onClose={() => setShowQuickAdd(false)} />}
-            </>
-          )}
-        </tbody>
-      </table>{' '}
-      {!isLoading && (
-        <div className="my-10 text-center">
-          <button
-            className="mx-5 bg-transparent hover:bg-purple-700 text-purple-700 font-semibold hover:text-white py-2 px-4 border border-purple-700 hover:border-transparent rounded"
-            onClick={() => setShowQuickAdd(true)}
-          >
-            Quick Add Customer
-          </button>
-
-          <Link to="/customers/new">
-            <button
-              className="shadow bg-purple-600 hover:bg-purple-700 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
-              type="button"
-            >
-              New Customer
-            </button>
-          </Link>
+    <div className="Page">
+      <div className="Page__Header">
+        <div className="Page__HeaderTitle">
+          <h1 className="Page__HeaderTitleText">
+            Customers
+          </h1>
+          {isFetchingFromRemote && <Spinner />}
         </div>
-      )}
-    </>
+        <div className="Page__HeaderActions">
+          <Button>
+            <Link to="/customers/new">New Customer</Link>
+          </Button>
+        </div>
+      </div>
+      <div className="Page__Content">
+        <table className="table-auto w-full mt-2">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-2 py-1 text-left">Name</th>
+              <th className="border px-2 py-1 text-left">Email</th>
+              <th className="border px-2 py-1 text-left">Website</th>
+              <th className="border px-2 py-1 text-left">Assignee</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {customers.map(customer => {
+              return (
+                <tr key={customer.id}>
+                  <td className="border px-2 py-1 text-left">{customer.attributes.firstName} {customer.attributes.lastName}</td>
+                  <td className="border px-2 py-1 text-left">{customer.attributes.email}</td>
+                  <td className="border px-2 py-1 text-left">{customer.attributes.website}</td>
+                  <td className="border px-2 py-1 text-left">--</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

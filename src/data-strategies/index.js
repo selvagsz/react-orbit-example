@@ -3,11 +3,11 @@ import MemorySource from '@orbit/memory';
 import JSONAPISource, { JSONAPISerializer, JSONAPIRequestProcessor } from '@orbit/jsonapi';
 import schema from '../data-schema';
 
-// class CustomerRequestProcessor extends JSONAPIRequestProcessor {
-//   fetch(url, settings) {
-//     alert(url);
-//   }
-// }
+class CustomerRequestProcessor extends JSONAPIRequestProcessor {
+  fetch(url, settings) {
+    return super.fetch(...arguments)
+  }
+}
 
 let memory = new MemorySource({
   schema,
@@ -18,7 +18,7 @@ let remote = new JSONAPISource({
   name: 'remote',
   host: 'https://api.orbit.com',
   namespace: 'ajax',
-  SerializerClass: JSONAPISerializer,
+  RequestProcessorClass: CustomerRequestProcessor,
 });
 
 const coordinator = new Coordinator({

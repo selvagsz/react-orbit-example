@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import './styles/index.scss';
 import './mocks/server';
 import Root from './Root';
 import StoreProvider from './components/Providers/Store';
