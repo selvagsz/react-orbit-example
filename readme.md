@@ -3,33 +3,25 @@
 
 ## API
 
-```js
+```ts
 import { useQuery } from 'react-orbit';
 
-export default function Customer() {
-  let { data: customers, isFetchingFromRemote, queryStore } = useQuery({
-    subscribeTo: 'customer',
-  });
-
-  useEffect(() => {
-    queryStore(t => t.findRecords('customer'));
-  }, [queryStore]);
-
-  return (
-    <>
-      {customers.map((customer) => <CustomerListItem customer={customer}>)}
-    </>
-  );
+interface RecordIdentity {
+  type: string
+  id: string|number
 }
-```
 
-```js
-import { useRemoteQuery } from 'react-orbit';
+interface RecordsIdentity {
+  type: string
+}
 
-export default function Customer() {
-  let { data: customers, isFetchingFromRemote, queryStore } = useQuery({
-    subscribeTo: 'customer',
-  });
+export default function Customers() {
+  let {
+    data: customers = [],
+    isLoading,
+    error,
+    queryStore
+  } = useQuery(RecordIdentity|RecordsIdentity, equalityFn?);
 
   useEffect(() => {
     queryStore(t => t.findRecords('customer'));

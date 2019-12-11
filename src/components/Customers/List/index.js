@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from '@reach/router';
 import useStoreQuery from '../../../hooks/useQuery';
-import CustomerListItem from './ListItem';
 import Button from '../../ui/Button'
 import Spinner from '../../ui/Spinner'
 
